@@ -1,6 +1,6 @@
 import com.codingame.gameengine.runner.MultiplayerGameRunner
 
-object SkeletonMain {
+object TsuroMain {
     @JvmStatic
     fun main(args: Array<String>) {
         val gameRunner = MultiplayerGameRunner()
