@@ -36,36 +36,102 @@ class Referee : AbstractReferee() {
         boardFrame()
     }
 
-    override fun gameTurn(turn: Int) {
-        val player = gameManager.getPlayer(turn % gameManager.playerCount)
+    /**
+     * First <player count> moves are meant just for picking starting position
+     */
+    private fun firstTurns(playerId: Int) {
+        val player = gameManager.getPlayer(playerId)
+        val opponents = (1 until gameManager.players.size).map {
+            gameManager.getPlayer((playerId + it) % gameManager.players.size)
+        }
 
-        if (player.isActive) {
-            player.sendInputLine("input")
-            player.execute()
+        opponents.forEach { opponent ->
+            player.sendInputLine(opponent.position.toString())
         }
 
         try {
-            val outputs = player.outputs
+            player.execute()
 
-            val row = (turn - 1) / 6
-            val column = (turn - 1) % 6
-            val tile = tiles[turn - 1]
-            val x = (1920 - boardSize) / 2 + column * tileSize
-            val y = (1080 - boardSize) / 2 + row * tileSize
+            val pickedPosition = fromOutput(player.outputs[0])
 
-            tile.relativePositions(2).chunked(2) { (from, to) ->
-                graphicEntityModule
-                        .createLine()
-                        .setX(x + from.x)
-                        .setY(y + from.y)
-                        .setX2(x + to.x)
-                        .setY2(y + to.y)
-                        .setLineWidth(5.0)
-                        .setLineColor(0x333333)
+            System.err.println(pickedPosition)
+            when {
+                opponents.any { it.position == pickedPosition } -> player.deactivate(String.format("Position already taken by other player", player.index))
+                pickedPosition.row == 0 && pickedPosition.col == 0 && pickedPosition.index !in listOf(0, 1, 6, 7) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.row == 0 && pickedPosition.col == 5 && pickedPosition.index !in listOf(0, 1, 2, 3) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.row == 5 && pickedPosition.col == 0 && pickedPosition.index !in listOf(4, 5, 6, 7) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.row == 5 && pickedPosition.col == 5 && pickedPosition.index !in listOf(2, 3, 4, 5) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.row == 0 && pickedPosition.index !in listOf(0, 1) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.row == 5 && pickedPosition.index !in listOf(4, 5) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.col == 0 && pickedPosition.index !in listOf(6, 7) -> player.deactivate(String.format("Invalid starting position", player.index))
+                pickedPosition.col == 5 && pickedPosition.index !in listOf(2, 3) -> player.deactivate(String.format("Invalid starting position", player.index))
+                else -> player.position = pickedPosition
             }
 
-        } catch (e: AbstractPlayer.TimeoutException) {
+        }  catch (e: AbstractPlayer.TimeoutException) {
+            player.score = -1
             player.deactivate(String.format("$%d timeout!", player.index))
+        }
+    }
+
+    private fun movingTurns(playerId: Int) {
+        System.err.println("Moving turn for $playerId")
+        val player = gameManager.getPlayer(playerId)
+
+        if (player.isActive) {
+            // opponent count
+            player.sendInputLine((gameManager.players.size - 1).toString())
+
+            // last opponent moves
+            for (i in 1 until gameManager.players.size) {
+                val opponent = gameManager.getPlayer((playerId + i) % gameManager.players.size)
+                player.sendInputLine("${opponent.lastMove.cardId} ${opponent.lastMove.rotation} ${opponent.position.col} ${opponent.position.row} ${opponent.position.index}")
+            }
+
+            // my card count
+            player.sendInputLine(player.hand.size.toString())
+
+            // my cards
+            for (tile in player.hand) {
+                player.sendInputLine("${tile.id} ${tile.connections.joinToString(" ")}")
+            }
+
+            try {
+
+                player.execute()
+
+                val lastMove = player.outputs[0].split(" ").map { it.toInt() }
+                player.lastMove = Move(lastMove[0], lastMove[1])
+
+                val row = (player.position.row) / 6
+                val column = (player.position.col) % 6
+                val tile = tiles[3]
+                val x = (1920 - boardSize) / 2 + column * tileSize
+                val y = (1080 - boardSize) / 2 + row * tileSize
+
+                tile.relativePositions(2).chunked(2) { (from, to) ->
+                    graphicEntityModule
+                            .createLine()
+                            .setX(x + from.x)
+                            .setY(y + from.y)
+                            .setX2(x + to.x)
+                            .setY2(y + to.y)
+                            .setLineWidth(5.0)
+                            .setLineColor(0x333333)
+                }
+            } catch (e: AbstractPlayer.TimeoutException) {
+                player.deactivate(String.format("$%d timeout!", player.index))
+            }
+        }
+    }
+
+    override fun gameTurn(turn: Int) {
+        val playerId = turn % gameManager.playerCount   // TODO: removed players?
+
+        if (turn <= gameManager.playerCount) {
+            firstTurns(playerId)
+        } else {
+            movingTurns(playerId)
         }
     }
 

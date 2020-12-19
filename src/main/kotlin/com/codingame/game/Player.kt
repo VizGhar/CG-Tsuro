@@ -3,11 +3,23 @@ package com.codingame.game
 import com.codingame.gameengine.core.AbstractMultiplayerPlayer
 import com.codingame.gameengine.module.entities.Group
 
+data class Move(val cardId: Int, val rotation: Int)
+
+data class BoardPosition(val col: Int, val row: Int, val index: Int) {
+    override fun toString() = "$col $row $index"
+}
+
+fun fromOutput(output: String) : BoardPosition {
+    val pickedPosition = output.split(" ").map { it.toInt() }
+    return BoardPosition(pickedPosition[0], pickedPosition[1], pickedPosition[2])
+}
+
 class Player : AbstractMultiplayerPlayer() {
 
     var hud: Group? = null
     var hand = mutableSetOf<Tile>()
-    var lastMove: Int? = null
+    var lastMove = Move(-1, -1)
+    var position = BoardPosition(-1, -1, -1)
 
     override fun getExpectedOutputLines() = 1
 
