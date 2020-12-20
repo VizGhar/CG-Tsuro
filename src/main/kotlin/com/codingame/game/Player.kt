@@ -3,7 +3,7 @@ package com.codingame.game
 import com.codingame.gameengine.core.AbstractMultiplayerPlayer
 import com.codingame.gameengine.module.entities.Group
 
-data class Move(val cardId: Int, val rotation: Int)
+data class Move(val tileId: Int, val rotation: Int)
 
 data class BoardPosition(val col: Int, val row: Int, val index: Int) {
     override fun toString() = "$col $row $index"

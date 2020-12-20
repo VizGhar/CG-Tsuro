@@ -16,8 +16,10 @@ fun Tile.relativePositions(rotation: Int) : List<Position> =
         2 -> (connections.map { (it + 4) % 8 }).toIntArray()
         3 -> (connections.map { (it + 6) % 8 }).toIntArray()
         else -> throw IllegalArgumentException()
-    }).connections.map {
-        when(it) {
+    }).connections.map(::indexToRelativePosition)
+
+fun indexToRelativePosition(index: Int) =
+        when(index) {
             0 -> 50 to 0
             1 -> 100 to 0
             2 -> 150 to 50
@@ -28,7 +30,6 @@ fun Tile.relativePositions(rotation: Int) : List<Position> =
             7 -> 0 to 50
             else -> throw IllegalStateException()
         }
-    }
 
 val tiles : List<Tile> = listOf(
         1 to intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),

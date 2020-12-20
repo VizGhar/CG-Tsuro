@@ -7,10 +7,12 @@
       <span>The Goal</span>
     </h1>
     <div class="statement-goal-content">
-      The aim of this game is to win.
+      Be the last player with a marker still on the board
       <br>
       <br>
-      For this question, you will be asked to output a single line as a solution.
+      Tsuro is simple turn based board game where you have to be the last man standing.<br>
+      Tsuro is played by placing tiles on the board and creating paths that your marker will follow.
+      Just be careful though, if the path you or another player makes sends you off the board you have lost.
     </div>
   </div>
   <!-- RULES -->
@@ -20,23 +22,44 @@
       <span>Rules</span>
     </h1>
     <div>
-      <div class="statement-rules-content">Your program receives characters.<br>
-        Your actions have an effect.<br>
+      <div class="statement-rules-content">
+        Tsuro is played on <const>6</const>x<const>6</const> board. During the game players are placing square tiles
+        with different paths drawn on them on the board. Tiles are stored in tile deck, that consists of
+        <const>35</const> tiles, until players draw the tiles from it.<br><br>
+
+        <strong>First turn</strong><br>
+        The active player places his or her marker on one of the start marks on the outside edge of the game board.
         <br>
-        The game zone works as follows:
-        <ul>
-          <li>There are coordinates.</li>
-        </ul>
         <br>
-        The units work as follows:
-        <ul>
-          <li>They move around.</li>
-        </ul>
-        You <strong>lose</strong> if:
-        <ul>
-          <li>You mess up.</li>
-          <li>You do not supply a valid sequence of actions.</li>
-        </ul>
+
+        <strong>Game turn</strong><br>
+        Game turn consists of 3 phases:<br>
+        <ol>
+          <li>Drawing tiles</li>
+          <li>Placing single tile</li>
+          <li>Move the markers</li>
+        </ol>
+        <br>
+        <strong>Drawing tiles</strong>
+        <br>
+        Tiles are drawn from the shuffled deck. Current player can have at most <const>3</const> tiles in his hands.
+        If there are no tiles in deck remaining, player can have less then 3 tiles in his hand. This move is automated.
+        <br>
+        <br>
+        <strong>Placing single tile</strong>
+        <br>
+        During this phase player have at least 1 tile in his hand. He can place single tile from his hand on the board.
+        The tile can be placed only at the end of player's current path. The tiles has id assigned and can be rotated
+        clockwise <const>0</const>, <const>1</const>, <const>2</const> or <const>3</const> times and placed on the
+        board. Your output should consist only of 2 numbers <var>tileId</var> and <var>tileRotation</var>
+        <br>
+        <br>
+        <strong>Move the markers</strong>
+        <br>
+        The active player moves his marker to the open end of the path.<br>
+        All other players next to the new tile are moved to the ends of their new paths.<br>
+        If any player leaves the board will be eliminated.
+        If more then one player is eliminated during resolution phase, active player is scored worse then inactive ones.
       </div>
     </div>
   </div>
@@ -47,7 +70,7 @@
       <span>Expert Rules</span>
     </h1>
     <div class="statement-expert-rules-content">
-      If you're going to run local simulations, you'll need to know this!
+      You can find the sourcecode of the game on <a href="https://github.com/VizGhar/CG-Tsuro">https://github.com/VizGhar/CG-Tsuro</a>
     </div>
   </div>
   <!-- EXAMPLES -->
@@ -58,7 +81,6 @@
     </h1>
 
     <div class="statement-examples-text">
-      A basic situation, an instruction, a result.
     </div>
 
   </div>
@@ -87,23 +109,35 @@
       <span class="icon icon-protocol">&nbsp;</span>
       <span>Game Input</span>
     </h1>
-    <!-- Protocol block -->
+
     <div class="blk">
-      <div class="text">The program must first read the initialization data from standard input. Then, provide to the
-        standard output one line with ...</div>
+      <div class="title">Input - First turn</div>
+      <div class="text">
+        <p><span class="statement-lineno">Line 1: </span><var>opponents</var> - count of opponents</p>
+        <p><span class="statement-lineno">Next <var>opponents</var> lines: </span> 3 space separated integers
+          representing opponent position - <var>column</var> <var>row</var> <var>index</var> or
+          <const>-1</const> <const>-1</const> <const>-1</const> if opponent is yet to start his/her move.</p>
+      </div>
     </div>
 
-    <!-- Protocol block -->
     <div class="blk">
-      <div class="title">Input</div>
+      <div class="title">Output - First turn</div>
+      <div class="text">
+        <span class="statement-lineno">A single line</span> containing 3 space separated integers representing desired
+        starting position - <var>column</var> <var>row</var> <var>index</var>
+        <br>
+      </div>
+    </div>
+
+    <div class="blk">
+      <div class="title">Input - Other turns</div>
       <div class="text">
         <p><span class="statement-lineno">Line 1: </span>one string <var>...</var>, the ...</p>
       </div>
     </div>
 
-    <!-- Protocol block -->
     <div class="blk">
-      <div class="title">Output</div>
+      <div class="title">Output - Other turns</div>
       <div class="text">
         <span class="statement-lineno">A single line</span> containing ...
         <br>
@@ -114,18 +148,11 @@
     <div class="blk">
       <div class="title">Constraints</div>
       <div class="text"><var>...</var> contains between 1 and 500 characters.<br>
-        <br>Allotted response time to output
-        is ≤ <const>2</const> seconds.</div>
-    </div>
-  </div>
-  <!-- STORY -->
-  <div class="statement-story-background">
-    <div class="statement-story-cover" style="background-size: cover; background-image: url(https://www.codingame.com/servlet/fileservlet?id=2210505809934)">
-      <div class="statement-story">
-        <h1>Title</h1>
-        <div class="story-text">Story
-          <br>
-          Totally optional</div>
+        <br>Allotted response time to output is
+        <ul>
+          <li>≤ <const>1</const> second in first move</li>
+          <li>≤ <const>50</const> ms in other moves</li>
+        </ul>
       </div>
     </div>
   </div>
