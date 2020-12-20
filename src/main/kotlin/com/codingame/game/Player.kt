@@ -1,6 +1,7 @@
 package com.codingame.game
 
 import com.codingame.gameengine.core.AbstractMultiplayerPlayer
+import com.codingame.gameengine.module.entities.Circle
 import com.codingame.gameengine.module.entities.Group
 
 data class Move(val tileId: Int, val rotation: Int)
@@ -20,6 +21,7 @@ class Player : AbstractMultiplayerPlayer() {
     var hand = mutableSetOf<Tile>()
     var lastMove = Move(-1, -1)
     var position = BoardPosition(-1, -1, -1)
+    var token: Circle? = null
 
     override fun getExpectedOutputLines() = 1
 

@@ -12,11 +12,11 @@ class Referee : AbstractReferee() {
     @Inject lateinit var gameManager: MultiplayerGameManager<Player>
     @Inject lateinit var graphicEntityModule: GraphicEntityModule
 
-    private val random by lazy { Random(gameManager.seed) }
-    private val deck by lazy { tiles.shuffled(random).toMutableList() }
+    val random by lazy { Random(gameManager.seed) }
+    val deck by lazy { tiles.shuffled(random).toMutableList() }
 
     override fun init() {
-        gameManager.maxTurns = 35 + gameManager.playerCount
+        gameManager.maxTurns = 36 * gameManager.playerCount
         gameManager.firstTurnMaxTime = 1000
         gameManager.turnMaxTime = 50
         gameManager.frameDuration = 600

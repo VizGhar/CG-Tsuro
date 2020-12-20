@@ -10,17 +10,17 @@ fun Referee.placePlayer(player: Player, position: BoardPosition) {
     val x = (1920 - boardSize) / 2 + position.col * tileSize + relativePos.x
     val y = (1080 - boardSize) / 2 + position.row * tileSize + relativePos.y
 
-    graphicEntityModule
+    if (player.token == null) player.token = graphicEntityModule
             .createCircle()
             .setFillColor(player.colorToken)
             .setLineWidth(0.0)
-            .setX(x)
-            .setY(y)
             .setRadius(tokenSize)
+
+    player.token?.setX(x)?.setY(y)
 }
 
 fun Referee.placeTile(move: Move, position: BoardPosition) {
-    val tile = tiles[move.tileId - 1]
+    val tile = tiles[move.tileId]
     val x = (1920 - boardSize) / 2 + position.col * tileSize
     val y = (1080 - boardSize) / 2 + position.row * tileSize
 
