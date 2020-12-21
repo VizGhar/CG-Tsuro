@@ -1,10 +1,10 @@
 package com.codingame.game
 
 import com.codingame.gameengine.module.entities.Curve
-import com.codingame.gameengine.module.entities.Text
+import com.codingame.gameengine.module.entities.Sprite
 
 private const val boardSize = tileSize * 6
-private const val tokenSize = tileSize / 10
+private const val tokenSize = tileSize / 6
 
 fun Referee.placePlayer(player: Player, position: BoardPosition) {
     val relativePos = indexToRelativePosition(position.index)
@@ -21,32 +21,49 @@ fun Referee.placePlayer(player: Player, position: BoardPosition) {
 }
 
 fun Referee.placeTile(move: Move, position: BoardPosition) {
-    val tile = tiles[move.tileId]
-    val x = (1920 - boardSize) / 2 + position.col * tileSize
-    val y = (1080 - boardSize) / 2 + position.row * tileSize
 
-    tile.relativePositions(move.rotation).chunked(2) { (from, to) ->
-        graphicEntityModule
-                .createLine()
-                .setX(x + from.x)
-                .setY(y + from.y)
-                .setX2(x + to.x)
-                .setY2(y + to.y)
-                .setLineWidth(5.0)
-                .setLineColor(0x333333)
-    }
+    tileSprites[position.col][position.row]
+            ?.setImage("tile${move.tileId.toString().padStart(2, '0')}.png")
+            ?.setRotation(Math.PI / 2 * move.rotation, Curve.IMMEDIATE)
+
 }
 
+private var tileSprites: Array<Array<Sprite?>> = Array(6) { Array(6) { null } }
+
 fun Referee.boardFrame() {
+    graphicEntityModule.createSprite()
+            .setImage("background.jpg")
+            .setAnchor(0.0)
+            .setZIndex(-100)
+
     graphicEntityModule
             .createRectangle()
-            .setWidth(boardSize)
-            .setHeight(boardSize)
-            .setX((1920 - boardSize) / 2)
-            .setY((1080 - boardSize) / 2)
+            .setWidth(boardSize + 10)
+            .setHeight(boardSize + 10)
+            .setX((1920 - boardSize - 5) / 2)
+            .setY((1080 - boardSize - 5) / 2)
+            .setZIndex(-20)
             .setLineWidth(10.0)
             .setLineColor(0xFFFFFF)
             .setFillColor(0x000000)
+
+    for (row in 0 until 6){
+        for(col in 0 until 6) {
+
+            val x = (1920 - boardSize) / 2 + col * tileSize + tileSize / 2
+            val y = (1080 - boardSize) / 2 + row * tileSize + tileSize / 2
+
+            val sprite = graphicEntityModule
+                    .createSprite()
+                    .setAnchorX(0.5)
+                    .setAnchorY(0.5)
+                    .setZIndex(-10)
+                    .setX(x)
+                    .setY(y)
+
+            tileSprites[col][row] = sprite
+        }
+    }
 }
 
 fun Referee.hud() {
