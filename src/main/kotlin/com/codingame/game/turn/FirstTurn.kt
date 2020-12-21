@@ -40,6 +40,10 @@ fun Referee.doFirstTurn(playerId: Int) {
         val pickedPosition = BoardPosition(input[1].toInt(), input[2].toInt(), input[3].toInt())
 
         val valid = when {
+            pickedPosition.row < 0 -> false
+            pickedPosition.row > 5 -> false
+            pickedPosition.col < 0 -> false
+            pickedPosition.col > 5 -> false
             pickedPosition.row == 0 -> {
                 when {
                     pickedPosition.col == 0 && pickedPosition.index !in listOf(0, 1, 6, 7) -> false

@@ -72,7 +72,7 @@ fun Referee.movingTurns(playerId: Int) {
             // draw from deck if player is still active
             activePlayer.lastMove = tilePick
             activePlayer.hand.removeIf { it.id == tilePick.tileId }
-            if (deck.isNotEmpty()) { activePlayer.hand.add(deck.removeFirst()) }
+            drawFromDeck(activePlayer)
         }
     } catch (e: AbstractPlayer.TimeoutException) {
         kill(activePlayer, 0, String.format("$%d timeout!", activePlayer.index))
