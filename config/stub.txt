@@ -1,0 +1,9 @@
+read opponentCount:int
+loop opponentCount read startingCol:int startingRow:int startingIndex:int
+
+gameloop
+loop opponentCount read tileId:int tileRotation:int col:int row:int index:int
+read tileCount:int
+loop tileCount read tileId:int ps1:int pe1:int ps2:int pe2:int ps3:int pe3:int ps4:int pe4:int
+
+write 0 0
