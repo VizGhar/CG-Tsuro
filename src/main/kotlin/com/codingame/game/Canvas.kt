@@ -1,5 +1,6 @@
 package com.codingame.game
 
+import com.codingame.gameengine.module.entities.Curve
 import com.codingame.gameengine.module.entities.Text
 
 private const val boardSize = tileSize * 6
@@ -16,7 +17,7 @@ fun Referee.placePlayer(player: Player, position: BoardPosition) {
             .setLineWidth(0.0)
             .setRadius(tokenSize)
 
-    player.token?.setX(x)?.setY(y)
+    player.token?.setX(x, Curve.EASE_IN_AND_OUT)?.setY(y, Curve.EASE_IN_AND_OUT)
 }
 
 fun Referee.placeTile(move: Move, position: BoardPosition) {

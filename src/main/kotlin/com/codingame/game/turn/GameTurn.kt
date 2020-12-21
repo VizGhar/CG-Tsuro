@@ -8,25 +8,22 @@ data class Piece(val tile: Tile)
 val board = Array<Array<Piece?>>(6) { Array(6) { null } }
 
 fun Referee.movingTurns(playerId: Int) {
-    val player = gameManager.getPlayer(playerId)
+    val activePlayer = gameManager.getPlayer(playerId)
 
     try {
-        sendInputsToPlayer(player)
+        sendInputsToPlayer(activePlayer)
 
         // TODO: validate outputs
-        val lastMove = player.outputs[0].split(" ").map { it.toInt() }.let {
+        val tilePick = activePlayer.outputs[0].split(" ").map { it.toInt() }.let {
             Move(it[0], it[1])
         }
 
-        placeTile(lastMove, player.position)
-        board[player.position.col][player.position.row] = Piece(tiles[lastMove.tileId].rotated(lastMove.rotation))
-        player.lastMove = lastMove
-        player.hand.removeIf { it.id == lastMove.tileId }
-        if (deck.isNotEmpty()) {
-            player.hand.add(deck.removeFirst())
-        }
+        // place tile based on player pick
+        placeTile(tilePick, activePlayer.position)
+        board[activePlayer.position.col][activePlayer.position.row] = Piece(tiles[tilePick.tileId].rotated(tilePick.rotation))
 
-        gameManager.players.filter { it.position.col == player.position.col && it.position.row == player.position.row }
+        // do moves
+        gameManager.players.filter { it.position.col == activePlayer.position.col && it.position.row == activePlayer.position.row }
                 .forEach { player ->
                     var actCol = player.position.col
                     var actRow = player.position.row
@@ -37,7 +34,6 @@ fun Referee.movingTurns(playerId: Int) {
                                 .chunked(2)
                                 .first { it.contains(actualIndex) }
                                 .first { it != actualIndex }
-                        System.err.println("Moving $playerId from $actCol : $actRow : $actualIndex : $target")
 
                         when (target) {
                             0 -> { actRow--; actualIndex = 5;}
@@ -49,20 +45,35 @@ fun Referee.movingTurns(playerId: Int) {
                             6 -> { actCol--; actualIndex = 3;}
                             7 -> { actCol--; actualIndex = 2;}
                         }
-
-                        System.err.println("to $actCol : $actRow : $actualIndex")
                     }
+
+                    player.position = BoardPosition(actCol, actRow, actualIndex)
+                    placePlayer(player, player.position)
+
                     if (actCol<0 || actRow<0 || actCol>5 || actRow>5) {
-                        player.score = -2
+                        player.score = actualTurn
+                        // active player commits suicide -> score penalization
+                        if (player == activePlayer) { player.score -= 1 }
                         player.deactivate(String.format("$%d leaves the board", player.index))
-                    } else {
-                        player.position = BoardPosition(actCol, actRow, actualIndex)
-                        placePlayer(player, player.position)
                     }
                 }
 
+        if (activePlayer.isActive) {
+            // draw from deck if player is still active
+            activePlayer.lastMove = tilePick
+            activePlayer.hand.removeIf { it.id == tilePick.tileId }
+            if (deck.isNotEmpty()) {
+                activePlayer.hand.add(deck.removeFirst())
+            }
+        } else {
+            // put players card to deck if player is inactive and shuffle deck
+            deck.addAll(activePlayer.hand)
+            activePlayer.hand.clear()
+            deck.shuffle()
+        }
+
     } catch (e: AbstractPlayer.TimeoutException) {
-        player.deactivate(String.format("$%d timeout!", player.index))
+        activePlayer.deactivate(String.format("$%d timeout!", activePlayer.index))
     }
 }
 
