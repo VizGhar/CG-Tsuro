@@ -50,6 +50,7 @@ class Referee : AbstractReferee() {
         }
 
         if (gameManager.activePlayers.size < 2){
+            gameManager.activePlayers.forEach { it.score = actualTurn + 1 }
             gameManager.endGame()
         }
     }

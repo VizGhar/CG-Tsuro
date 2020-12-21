@@ -1,11 +1,7 @@
 import java.util.*
 import kotlin.random.Random
 
-/**
- * Auto-generated code below aims at helping you parse
- * the standard input according to the problem statement.
- **/
-fun main(args : Array<String>) {
+fun main() {
     val input = Scanner(System.`in`)
     val opponentCount = input.nextInt()
     for (i in 0 until opponentCount) {

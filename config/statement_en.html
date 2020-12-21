@@ -26,11 +26,12 @@
         Tsuro is played on <const>6</const>x<const>6</const> board. During the game players are placing square tiles
         with different paths drawn on them on the board. Tiles are stored in tile deck, that consists of
         <const>35</const> tiles, until players draw the tiles from it.<br><br>
-
+        <strong>Tiles</strong><br>
+        <strong>TODO: describe (using images) how tiles looks like and how they are represented</strong>
+        <br><br>
         <strong>First turn</strong><br>
         The active player places his or her marker on one of the start marks on the outside edge of the game board.
-        <br>
-        <br>
+        <br><br>
 
         <strong>Game turn</strong><br>
         Game turn consists of 3 phases:<br>
@@ -132,14 +133,29 @@
     <div class="blk">
       <div class="title">Input - Other turns</div>
       <div class="text">
-        <p><span class="statement-lineno">Line 1: </span>one string <var>...</var>, the ...</p>
+          <!-- loop opponentCount read tileId:int tileRotation:int col:int row:int index:int -->
+        <p><span class="statement-lineno"><var>opponents</var> lines: </span>
+        <ul>
+          <li><var>tileId</var> - id of last tile opponent played</li>
+          <li><var>tileRotation</var> - orientation of last tile opponent played</li>
+          <li><var>col</var> - current opponent position - column</li>
+          <li><var>row</var> - current opponent position - row</li>
+          <li><var>index</var> - current opponent position - index</li>
+        </ul>
+        <p><span class="statement-lineno"><var>tileCount</var> - tiles on hand</span>
+        <p><span class="statement-lineno"><var>tileCount</var> lines: </span>
+        <ul>
+          <li><var>tileId</var></li>
+          <li>four pairs of <var>ps</var> - index where path starts<br><var>pe</var> - index where path ends</li>
+        </ul>
+        </p>
       </div>
     </div>
 
     <div class="blk">
       <div class="title">Output - Other turns</div>
       <div class="text">
-        <span class="statement-lineno">A single line</span> containing ...
+        <span class="statement-lineno">A single line</span> containing <var>tileId</var> and <var>tileRotation</var>
         <br>
       </div>
     </div>

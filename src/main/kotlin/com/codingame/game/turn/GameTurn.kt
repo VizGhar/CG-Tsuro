@@ -13,9 +13,21 @@ fun Referee.movingTurns(playerId: Int) {
     try {
         sendInputsToPlayer(activePlayer)
 
-        // TODO: validate outputs
-        val tilePick = activePlayer.outputs[0].split(" ").map { it.toInt() }.let {
-            Move(it[0], it[1])
+        val tilePick = try {
+            activePlayer.outputs[0].split(" ").map { it.toInt() }.let {
+                Move(it[0], it[1])
+            }
+        } catch (ex: Exception) {
+            Move(-1, -1)
+        }
+
+        if (activePlayer.hand.none { it.id == tilePick.tileId } || tilePick.rotation < 0 || tilePick.rotation > 3) {
+            activePlayer.score = actualTurn - 1
+            activePlayer.deactivate(String.format("$%d invalid input - either tileId or rotation was invalid", activePlayer.index))
+            deck.addAll(activePlayer.hand)
+            activePlayer.hand.clear()
+            deck.shuffle()
+            return
         }
 
         // place tile based on player pick
