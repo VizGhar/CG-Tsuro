@@ -1,17 +1,44 @@
 import java.util.*
-import kotlin.random.Random
 
 fun main() {
     val input = Scanner(System.`in`)
     val opponentCount = input.nextInt()
-    for (i in 0 until opponentCount) {
-        val startingCol = input.nextInt()
-        val startingRow = input.nextInt()
-        val startingIndex = input.nextInt()
-    }
+    var firstMove = true
 
-    val random = Random(123456)
-    val position = random.nextInt(48)
+    // game loop
+    while (true) {
+        for (i in 0 until opponentCount) {
+            val lastPlayedTileId = input.nextInt()
+            val lastPlayedTileRotation = input.nextInt()
+            val col = input.nextInt()
+            val row = input.nextInt()
+            val index = input.nextInt()
+        }
+        val tileCount = input.nextInt()
+        val tiles = (0 until tileCount).map {
+            val tileId = input.nextInt()
+            val ps1 = input.nextInt()
+            val pe1 = input.nextInt()
+            val ps2 = input.nextInt()
+            val pe2 = input.nextInt()
+            val ps3 = input.nextInt()
+            val pe3 = input.nextInt()
+            val ps4 = input.nextInt()
+            val pe4 = input.nextInt()
+            tileId
+        }
+
+        if (firstMove) {
+            firstMove = false
+            doFirstMove()
+        } else {
+            println("PLACE ${tiles.random()} 1")
+        }
+    }
+}
+
+fun doFirstMove() {
+    val position = Random().nextInt(48)
     val row: Int
     val col: Int
     val index: Int
@@ -69,31 +96,5 @@ fun main() {
         47 -> { row = 0; index = 7; col = 0; }
         else -> throw IllegalStateException()
     }
-    println("$col $row $index")
-
-    // game loop
-    while (true) {
-        for (i in 0 until opponentCount) {
-            val tileId = input.nextInt()
-            val tileRotation = input.nextInt()
-            val col = input.nextInt()
-            val row = input.nextInt()
-            val index = input.nextInt()
-        }
-        val tileCount = input.nextInt()
-        val tiles = (0 until tileCount).map {
-            val tileId = input.nextInt()
-            val ps1 = input.nextInt()
-            val pe1 = input.nextInt()
-            val ps2 = input.nextInt()
-            val pe2 = input.nextInt()
-            val ps3 = input.nextInt()
-            val pe3 = input.nextInt()
-            val ps4 = input.nextInt()
-            val pe4 = input.nextInt()
-            tileId
-        }
-
-        println("${tiles.random(random)} ${listOf(0,1,2,3).random(random)}")
-    }
+    println("START $col $row $index")
 }

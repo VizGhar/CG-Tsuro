@@ -10,23 +10,20 @@ val board = Array<Array<Piece?>>(6) { Array(6) { null } }
 fun Referee.movingTurns(playerId: Int) {
     val activePlayer = gameManager.getPlayer(playerId)
 
-    try {
-        sendInputsToPlayer(activePlayer)
+    sendInputsToPlayer(activePlayer)
 
-        val tilePick = try {
-            activePlayer.outputs[0].split(" ").map { it.toInt() }.let {
-                Move(it[0], it[1])
-            }
-        } catch (ex: Exception) {
-            Move(-1, -1)
+    try {
+        activePlayer.execute()
+
+        val input = activePlayer.outputs[0].split(" ")
+        if (input.size != 3 || input[0] != "PLACE" || input.subList(1, input.size).any { it.toIntOrNull() == null }) {
+            kill(activePlayer, - 1, String.format("$%d Expected input was 'PLACE <tileId> <tileRotation>", activePlayer.index))
+            return
         }
+        val tilePick = Move(input[1].toInt(), input[2].toInt())
 
         if (activePlayer.hand.none { it.id == tilePick.tileId } || tilePick.rotation < 0 || tilePick.rotation > 3) {
-            activePlayer.score = actualTurn - 1
-            activePlayer.deactivate(String.format("$%d invalid input - either tileId or rotation was invalid", activePlayer.index))
-            deck.addAll(activePlayer.hand)
-            activePlayer.hand.clear()
-            deck.shuffle()
+            kill(activePlayer, - 1, String.format("$%d invalid input - either tileId or rotation was invalid", activePlayer.index))
             return
         }
 
@@ -66,7 +63,7 @@ fun Referee.movingTurns(playerId: Int) {
                         player.score = actualTurn
                         // active player commits suicide -> score penalization
                         if (player == activePlayer) { player.score -= 1 }
-                        player.deactivate(String.format("$%d leaves the board", player.index))
+                        kill(player, player.score, String.format("$%d leaves the board", player.index))
                     }
                 }
 
@@ -77,47 +74,8 @@ fun Referee.movingTurns(playerId: Int) {
             if (deck.isNotEmpty()) {
                 activePlayer.hand.add(deck.removeFirst())
             }
-        } else {
-            // put players card to deck if player is inactive and shuffle deck
-            deck.addAll(activePlayer.hand)
-            activePlayer.hand.clear()
-            deck.shuffle()
         }
-
     } catch (e: AbstractPlayer.TimeoutException) {
         activePlayer.deactivate(String.format("$%d timeout!", activePlayer.index))
     }
-}
-
-/**
- * These are inputs send to [Player]'s input stream:
- *
- * 1. <opponents> lines containing
- *      1. <tileId> - last tile ID played by opponent
- *      2. <tileRotation> - last tile ROTATION played by opponent
- *      3. <col> - column on which opponent is located
- *      4. <row> - row on which opponent is located
- *      5. <index> - position index (0,1 top; 2,3 right...)
- * 2. <cardCount> - count of cards on my hand
- * 3. <cardCount> lines of
- *      1. <tileId> - identifier of tile
- *      2. <connections> - 4 pairs of tile indexes to connect
- */
-private fun Referee.sendInputsToPlayer(player: Player) {
-
-    // last opponent moves
-    for (i in 1 until gameManager.players.size) {
-        val opponent = gameManager.getPlayer((player.index + i) % gameManager.players.size)
-        player.sendInputLine("${opponent.lastMove.tileId} ${opponent.lastMove.rotation} ${opponent.position.col} ${opponent.position.row} ${opponent.position.index}")
-    }
-
-    // my card count
-    player.sendInputLine(player.hand.size.toString())
-
-    // my cards
-    for (tile in player.hand) {
-        player.sendInputLine("${tile.id} ${tile.connections.joinToString(" ")}")
-    }
-
-    player.execute()
 }

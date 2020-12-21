@@ -10,14 +10,8 @@ data class BoardPosition(val col: Int, val row: Int, val index: Int) {
     override fun toString() = "$col $row $index"
 }
 
-fun fromOutput(output: String) : BoardPosition {
-    val pickedPosition = output.split(" ").map { it.toInt() }
-    return BoardPosition(pickedPosition[0], pickedPosition[1], pickedPosition[2])
-}
-
 class Player : AbstractMultiplayerPlayer() {
 
-    var hud: Group? = null
     var hand = mutableSetOf<Tile>()
     var lastMove = Move(-1, -1)
     var position = BoardPosition(-1, -1, -1)

@@ -1,5 +1,7 @@
 package com.codingame.game
 
+import com.codingame.game.turn.kill
+import com.codingame.game.turn.sendInputsToPlayer
 import com.codingame.gameengine.core.AbstractPlayer
 
 /**
@@ -23,14 +25,19 @@ fun Referee.doFirstTurn(playerId: Int) {
     }
 
     player.sendInputLine("${gameManager.playerCount - 1}")
-    opponents.forEach { opponent ->
-        player.sendInputLine(opponent.position.toString())
-    }
+
+    sendInputsToPlayer(player)
 
     try {
         player.execute()
 
-        val pickedPosition = fromOutput(player.outputs[0])
+        val input = player.outputs[0].split(" ")
+        if (input.size != 4 || input[0] != "START" || input.subList(1, input.size).any { it.toIntOrNull() == null }) {
+            kill(player, -1, String.format("$%d Expected input was 'START <column> <row> <index>", player.index))
+            return
+        }
+
+        val pickedPosition = BoardPosition(input[1].toInt(), input[2].toInt(), input[3].toInt())
 
         val valid = when {
             pickedPosition.row == 0 -> {
@@ -69,11 +76,10 @@ fun Referee.doFirstTurn(playerId: Int) {
                 player.position = pickedPosition
                 placePlayer(player, pickedPosition)
             }
-            valid -> player.deactivate(String.format("Invalid starting position - same as opponent", player.index))
-            else -> player.deactivate(String.format("Invalid starting position", player.index))
+            valid -> player.deactivate(String.format("$%d Invalid starting position - same as opponent", player.index))
+            else -> player.deactivate(String.format("$%d Invalid starting position", player.index))
         }
     }  catch (e: AbstractPlayer.TimeoutException) {
-        System.err.println("Timeout Deactivation 1")
         player.score = -1
         player.deactivate(String.format("$%d timeout!", player.index))
     }

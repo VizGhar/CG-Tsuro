@@ -8,11 +8,6 @@
     </h1>
     <div class="statement-goal-content">
       Be the last player with a marker still on the board
-      <br>
-      <br>
-      Tsuro is simple turn based board game where you have to be the last man standing.<br>
-      Tsuro is played by placing tiles on the board and creating paths that your marker will follow.
-      Just be careful though, if the path you or another player makes sends you off the board you have lost.
     </div>
   </div>
   <!-- RULES -->
@@ -24,43 +19,55 @@
     <div>
       <div class="statement-rules-content">
         Tsuro is played on <const>6</const>x<const>6</const> board. During the game players are placing square tiles
-        with different paths drawn on them on the board. Tiles are stored in tile deck, that consists of
-        <const>35</const> tiles, until players draw the tiles from it.<br><br>
+        on the board with different paths drawn on them. After the move, players are following the new paths created.
+        Tiles are stored in tile deck, that consists of <const>35</const> tiles.<br><br>
         <strong>Tiles</strong><br>
-        <strong>TODO: describe (using images) how tiles looks like and how they are represented</strong>
+        Player is placing tiles with 4 sets of paths. Path has 2 ends indexed as following:
+        <br>
+        <p style="text-align:center;">
+        <img src="https://raw.githubusercontent.com/VizGhar/CG-Tsuro/master/src/main/resources/view/assets/indexes.png" width="200" height="200"/>
+        </p>
+        <br>
+        So here you can see tile with some ID and indexes as follows -
+        <const>0</const> <const>4</const>
+        <const>1</const> <const>3</const>
+        <const>2</const> <const>5</const>
+        <const>6</const> <const>7</const>
         <br><br>
         <strong>First turn</strong><br>
         The active player places his or her marker on one of the start marks on the outside edge of the game board.
+        Each tile has 2 path ends on each side, so there are 2 x 6 x 4 = 48 possible starting position. Starting
+        position should be selected by calling <const>START</const> <var>column</var> <var>row</var> <var>index</var>
         <br><br>
 
         <strong>Game turn</strong><br>
         Game turn consists of 3 phases:<br>
         <ol>
-          <li>Drawing tiles</li>
           <li>Placing single tile</li>
           <li>Move the markers</li>
+          <li>Drawing tiles</li>
         </ol>
-        <br>
-        <strong>Drawing tiles</strong>
-        <br>
-        Tiles are drawn from the shuffled deck. Current player can have at most <const>3</const> tiles in his hands.
-        If there are no tiles in deck remaining, player can have less then 3 tiles in his hand. This move is automated.
-        <br>
         <br>
         <strong>Placing single tile</strong>
         <br>
         During this phase player have at least 1 tile in his hand. He can place single tile from his hand on the board.
         The tile can be placed only at the end of player's current path. The tiles has id assigned and can be rotated
         clockwise <const>0</const>, <const>1</const>, <const>2</const> or <const>3</const> times and placed on the
-        board. Your output should consist only of 2 numbers <var>tileId</var> and <var>tileRotation</var>
+        board. You can place the tile by calling <const>PLACE</const> <var>tileId</var> <var>tileRotation</var>
         <br>
         <br>
         <strong>Move the markers</strong>
         <br>
         The active player moves his marker to the open end of the path.<br>
         All other players next to the new tile are moved to the ends of their new paths.<br>
-        If any player leaves the board will be eliminated.
+        Any player that leaves the board will be eliminated.
         If more then one player is eliminated during resolution phase, active player is scored worse then inactive ones.
+        <br>
+        <br>
+        <strong>Drawing tiles</strong>
+        <br>
+        Tiles are drawn from the shuffled deck. Current player can have at most <const>3</const> tiles in his hands.
+        If there are no tiles in deck remaining, player can have less then 3 tiles in his hand. This move is automated.
       </div>
     </div>
   </div>
@@ -74,36 +81,6 @@
       You can find the sourcecode of the game on <a href="https://github.com/VizGhar/CG-Tsuro">https://github.com/VizGhar/CG-Tsuro</a>
     </div>
   </div>
-  <!-- EXAMPLES -->
-  <div class="statement-section statement-examples">
-    <h1>
-      <span class="icon icon-example">&nbsp;</span>
-      <span>Example</span>
-    </h1>
-
-    <div class="statement-examples-text">
-    </div>
-
-  </div>
-  <!-- WARNING -->
-  <div class="statement-section statement-warning">
-    <h1>
-      <span class="icon icon-warning">&nbsp;</span>
-      <span>Note</span>
-    </h1>
-    <div class="statement-warning-content">
-      <b>Don’t forget to run the tests by launching them from the “Test cases” window</b>. You can submit at any time
-      to recieve a score against the training validators. <b>You can submit as many times as you like</b>. Your most
-      recent submission will be used for the final ranking.<br>
-      <br>
-      <strong>Warning:</strong> the validation tests used to compute the final score are not the same as the ones used
-      during the event.
-      Harcoded solutions will not score highly.<br>
-      <br>
-      Don't hesitate to change the viewer's options to help debug your code (<img style="opacity:.8;background:#20252a;"
-        height="18" src="https://www.codingame.com/servlet/fileservlet?id=3463235186409" width="18">).
-    </div>
-  </div>
   <!-- PROTOCOL -->
   <div class="statement-section statement-protocol">
     <h1>
@@ -112,28 +89,15 @@
     </h1>
 
     <div class="blk">
-      <div class="title">Input - First turn</div>
+      <div class="title">Input - Init</div>
       <div class="text">
         <p><span class="statement-lineno">Line 1: </span><var>opponents</var> - count of opponents</p>
-        <p><span class="statement-lineno">Next <var>opponents</var> lines: </span> 3 space separated integers
-          representing opponent position - <var>column</var> <var>row</var> <var>index</var> or
-          <const>-1</const> <const>-1</const> <const>-1</const> if opponent is yet to start his/her move.</p>
       </div>
     </div>
 
     <div class="blk">
-      <div class="title">Output - First turn</div>
+      <div class="title">Input - Game Loop</div>
       <div class="text">
-        <span class="statement-lineno">A single line</span> containing 3 space separated integers representing desired
-        starting position - <var>column</var> <var>row</var> <var>index</var>
-        <br>
-      </div>
-    </div>
-
-    <div class="blk">
-      <div class="title">Input - Other turns</div>
-      <div class="text">
-          <!-- loop opponentCount read tileId:int tileRotation:int col:int row:int index:int -->
         <p><span class="statement-lineno"><var>opponents</var> lines: </span>
         <ul>
           <li><var>tileId</var> - id of last tile opponent played</li>
@@ -153,9 +117,10 @@
     </div>
 
     <div class="blk">
-      <div class="title">Output - Other turns</div>
+      <div class="title">Output - Game Loop</div>
       <div class="text">
-        <span class="statement-lineno">A single line</span> containing <var>tileId</var> and <var>tileRotation</var>
+        <span class="statement-lineno">First turn</span> <const>START</const> <var>column</var> <var>row</var> <var>positionIndex</var>
+        <span class="statement-lineno">Other turns</span> <const>PLACE</const> <var>tileId</var> <var>tileRotation</var>
         <br>
       </div>
     </div>
@@ -163,8 +128,7 @@
     <!-- Protocol block -->
     <div class="blk">
       <div class="title">Constraints</div>
-      <div class="text"><var>...</var> contains between 1 and 500 characters.<br>
-        <br>Allotted response time to output is
+      <div class="text">Allotted response time to output is
         <ul>
           <li>≤ <const>1</const> second in first move</li>
           <li>≤ <const>50</const> ms in other moves</li>

@@ -72,7 +72,7 @@ fun Referee.hud() {
                 .setLineWidth(0.0)
                 .setFillColor(0xffffff)
 
-        val text: Text = graphicEntityModule.createText(player.nicknameToken)
+        graphicEntityModule.createText(player.nicknameToken)
                 .setX(x)
                 .setY(y + 120)
                 .setZIndex(20)
@@ -80,7 +80,7 @@ fun Referee.hud() {
                 .setFillColor(0xffffff)
                 .setAnchor(0.5)
 
-        val avatar = graphicEntityModule.createSprite()
+        graphicEntityModule.createSprite()
                 .setX(x)
                 .setY(y)
                 .setZIndex(20)
@@ -89,6 +89,5 @@ fun Referee.hud() {
                 .setBaseHeight(116)
                 .setBaseWidth(116)
 
-        player.hud = graphicEntityModule.createGroup(text, avatar)
     }
 }
