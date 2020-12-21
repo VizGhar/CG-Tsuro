@@ -15,15 +15,17 @@ fun Referee.movingTurns(playerId: Int) {
     try {
         activePlayer.execute()
 
+        // validate input format and data types
         val input = activePlayer.outputs[0].split(" ")
         if (input.size != 3 || input[0] != "PLACE" || input.subList(1, input.size).any { it.toIntOrNull() == null }) {
-            kill(activePlayer, - 1, String.format("$%d Expected input was 'PLACE <tileId> <tileRotation>", activePlayer.index))
+            kill(activePlayer, 0, String.format("$%d Expected input was 'PLACE <tileId> <tileRotation>", activePlayer.index))
             return
         }
         val tilePick = Move(input[1].toInt(), input[2].toInt())
 
+        // validate input values (check whether card is in player's hand)
         if (activePlayer.hand.none { it.id == tilePick.tileId } || tilePick.rotation < 0 || tilePick.rotation > 3) {
-            kill(activePlayer, - 1, String.format("$%d invalid input - either tileId or rotation was invalid", activePlayer.index))
+            kill(activePlayer, 0, String.format("$%d Invalid input - either tileId or rotation was invalid", activePlayer.index))
             return
         }
 
@@ -59,10 +61,9 @@ fun Referee.movingTurns(playerId: Int) {
                     player.position = BoardPosition(actCol, actRow, actualIndex)
                     placePlayer(player, player.position)
 
-                    if (actCol<0 || actRow<0 || actCol>5 || actRow>5) {
-                        player.score = actualTurn
+                    if (actCol < 0 || actRow < 0 || actCol > 5 || actRow > 5) {
                         // active player commits suicide -> score penalization
-                        if (player == activePlayer) { player.score -= 1 }
+                        player.score = actualTurn + if (player == activePlayer) -1 else 0
                         kill(player, player.score, String.format("$%d leaves the board", player.index))
                     }
                 }
@@ -71,11 +72,9 @@ fun Referee.movingTurns(playerId: Int) {
             // draw from deck if player is still active
             activePlayer.lastMove = tilePick
             activePlayer.hand.removeIf { it.id == tilePick.tileId }
-            if (deck.isNotEmpty()) {
-                activePlayer.hand.add(deck.removeFirst())
-            }
+            if (deck.isNotEmpty()) { activePlayer.hand.add(deck.removeFirst()) }
         }
     } catch (e: AbstractPlayer.TimeoutException) {
-        activePlayer.deactivate(String.format("$%d timeout!", activePlayer.index))
+        kill(activePlayer, 0, String.format("$%d timeout!", activePlayer.index))
     }
 }

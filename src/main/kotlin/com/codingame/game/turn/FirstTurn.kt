@@ -33,7 +33,7 @@ fun Referee.doFirstTurn(playerId: Int) {
 
         val input = player.outputs[0].split(" ")
         if (input.size != 4 || input[0] != "START" || input.subList(1, input.size).any { it.toIntOrNull() == null }) {
-            kill(player, -1, String.format("$%d Expected input was 'START <column> <row> <index>", player.index))
+            kill(player, 0, String.format("$%d Expected input was 'START <column> <row> <index>", player.index))
             return
         }
 
@@ -76,11 +76,10 @@ fun Referee.doFirstTurn(playerId: Int) {
                 player.position = pickedPosition
                 placePlayer(player, pickedPosition)
             }
-            valid -> player.deactivate(String.format("$%d Invalid starting position - same as opponent", player.index))
-            else -> player.deactivate(String.format("$%d Invalid starting position", player.index))
+            valid -> kill(player, 0, String.format("$%d Invalid starting position - same as opponent", player.index))
+            else -> kill(player, 0, String.format("$%d Invalid starting position", player.index))
         }
     }  catch (e: AbstractPlayer.TimeoutException) {
-        player.score = -1
-        player.deactivate(String.format("$%d timeout!", player.index))
+        kill(player, 0, String.format("$%d timeout!", player.index))
     }
 }
