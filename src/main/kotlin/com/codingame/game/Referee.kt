@@ -14,9 +14,10 @@ class Referee : AbstractReferee() {
 
     val random by lazy { Random(gameManager.seed) }
     val deck by lazy { tiles.shuffled(random).toMutableList() }
+    var activePlayerId = -1
 
     override fun init() {
-        gameManager.maxTurns = 36 * gameManager.playerCount
+        gameManager.maxTurns = 35 + gameManager.playerCount
         gameManager.firstTurnMaxTime = 1000
         gameManager.turnMaxTime = 50
         gameManager.frameDuration = 600
@@ -34,12 +35,14 @@ class Referee : AbstractReferee() {
     }
 
     override fun gameTurn(turn: Int) {
-        val playerId = turn % gameManager.playerCount   // TODO: removed players?
+        do {
+            activePlayerId = (activePlayerId + 1) % gameManager.playerCount
+        } while (!gameManager.getPlayer(activePlayerId).isActive)
 
         if (turn <= gameManager.playerCount) {
-            doFirstTurn(playerId)
+            doFirstTurn(activePlayerId)
         } else {
-            movingTurns(playerId)
+            movingTurns(activePlayerId)
         }
     }
 }

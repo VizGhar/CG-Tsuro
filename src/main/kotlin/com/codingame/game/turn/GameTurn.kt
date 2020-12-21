@@ -10,10 +10,6 @@ val board = Array<Array<Piece?>>(6) { Array(6) { null } }
 fun Referee.movingTurns(playerId: Int) {
     val player = gameManager.getPlayer(playerId)
 
-    if (!player.isActive) {
-        return
-    }
-
     try {
         sendInputsToPlayer(player)
 
