@@ -22,10 +22,15 @@ fun Referee.placePlayer(player: Player, position: BoardPosition) {
 
 fun Referee.placeTile(move: Move, position: BoardPosition) {
 
-    tileSprites[position.col][position.row]
-            ?.setImage("tile${move.tileId.toString().padStart(2, '0')}.png")
-            ?.setRotation(Math.PI / 2 * move.rotation, Curve.IMMEDIATE)
+    tileSprites[position.col][position.row]?.let { tile ->
+        tile.setImage("tile${move.tileId.toString().padStart(2, '0')}.png")
+                .setRotation(Math.PI / 2 * move.rotation,Curve.EASE_OUT)
+        graphicEntityModule.commitEntityState(0.01, tile)
 
+        tile.setAlpha(1.0, Curve.EASE_OUT)
+
+        graphicEntityModule.commitEntityState(0.5, tile)
+    }
 }
 
 private var tileSprites: Array<Array<Sprite?>> = Array(6) { Array(6) { null } }
@@ -58,6 +63,7 @@ fun Referee.boardFrame() {
                     .setAnchorX(0.5)
                     .setAnchorY(0.5)
                     .setZIndex(-10)
+                    .setAlpha(0.0)
                     .setX(x)
                     .setY(y)
 

@@ -43,7 +43,7 @@ object Agent1 {
                 doFirstMove()
                 startMove = !startMove
             } else {
-                println("PLACE ${tiles.random()} ${listOf(0, 1, 2, 3).random()}")
+                println("PLACE ${tiles.first()} 1")
             }
         }
     }
