@@ -41,8 +41,8 @@ fun Referee.sendInputsToPlayer(player: Player) {
 fun MultiplayerGameManager<Player>.nextActivePlayer(activePlayer: Player): Player? {
     for (i in 1 until players.size) {
         val index = (activePlayer.index) + i % playerCount
-        val player = players.first { it.index == index }
-        if (player.isActive) {
+        val player = players.firstOrNull { it.index == index }
+        if (player?.isActive == true) {
             return player
         }
     }

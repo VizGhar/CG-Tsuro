@@ -73,35 +73,40 @@ fun Referee.boardFrame() {
 }
 
 fun Referee.hud() {
+    val horizontalSpace = (1920 - boardSize) / 2
+    val verticalSpace = 1080 / ((gameManager.playerCount + 1) / 2)
+
+    val horizontalCenterLeft = horizontalSpace / 2
+    val horizontalCenterRight = boardSize + horizontalSpace + horizontalSpace / 2
+
+    val frameSize = if (gameManager.playerCount < 5) 140 else 100
+    val whiteRectangleSize = frameSize - 20
+    val avatarSize = whiteRectangleSize - 8
+    val fontSize = if (gameManager.playerCount < 5) 40 else 30
+
     for (player in gameManager.players) {
-        val x = if (player.index % 2 == 0) 280 else 1920 - 280  // first and third player on left
-        val y = if (player.index / 2 == 0) 220 else 1080 - 220  // first and second player on top
+        val x = if (player.index % 2 == 0) horizontalCenterLeft else horizontalCenterRight  // odd players on left
+        val row = player.index / 2
+        val verticalCenter = (row * verticalSpace + (row + 1) * verticalSpace) / 2
+        val y = verticalCenter - fontSize  // first and second player on top
 
         graphicEntityModule
                 .createRectangle()
-                .setWidth(140)
-                .setHeight(140)
-                .setX(x - 70)
-                .setY(y - 70)
+                .setWidth(frameSize)
+                .setHeight(frameSize)
+                .setX(x - frameSize / 2)
+                .setY(y - frameSize / 2)
                 .setLineWidth(0.0)
                 .setFillColor(player.colorToken)
 
         graphicEntityModule
                 .createRectangle()
-                .setWidth(120)
-                .setHeight(120)
-                .setX(x - 60)
-                .setY(y - 60)
+                .setWidth(whiteRectangleSize)
+                .setHeight(whiteRectangleSize)
+                .setX(x - whiteRectangleSize / 2)
+                .setY(y - whiteRectangleSize / 2)
                 .setLineWidth(0.0)
                 .setFillColor(0xffffff)
-
-        graphicEntityModule.createText(player.nicknameToken)
-                .setX(x)
-                .setY(y + 120)
-                .setZIndex(20)
-                .setFontSize(40)
-                .setFillColor(0xffffff)
-                .setAnchor(0.5)
 
         graphicEntityModule.createSprite()
                 .setX(x)
@@ -109,8 +114,16 @@ fun Referee.hud() {
                 .setZIndex(20)
                 .setImage(player.avatarToken)
                 .setAnchor(0.5)
-                .setBaseHeight(116)
-                .setBaseWidth(116)
+                .setBaseHeight(avatarSize)
+                .setBaseWidth(avatarSize)
+
+        graphicEntityModule.createText(player.nicknameToken)
+                .setX(x)
+                .setY(y + frameSize / 2 + fontSize)
+                .setZIndex(20)
+                .setFontSize(fontSize)
+                .setFillColor(0xffffff)
+                .setAnchor(0.5)
 
     }
 }

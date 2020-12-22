@@ -10,7 +10,7 @@
         <gamengine.version>3.15.0</gamengine.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <kotlin.version>1.4.21</kotlin.version>
+        <kotlin.version>1.4.20</kotlin.version>
     </properties>
 
     <dependencies>
