@@ -1,7 +1,7 @@
-read opponentCount:int
+read playerCount:int
 
 gameloop
-loop opponentCount read lastPlayedTileId:int lastPlayedTileRotation:int col:int row:int index:int
+loop playerCount read lastPlayedTileId:int ps1:int pe1:int ps2:int pe2:int ps3:int pe3:int ps4:int pe4:int col:int row:int index:int startingBoardIndex:int
 read tileCount:int
 loop tileCount read tileId:int ps1:int pe1:int ps2:int pe2:int ps3:int pe3:int ps4:int pe4:int
 

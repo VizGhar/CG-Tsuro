@@ -17,13 +17,14 @@ fun Referee.movingTurns(playerId: Int) {
 
         // validate input format and data types
         val input = activePlayer.outputs[0].split(" ")
-        if (input.size != 3 || input[0] != "PLACE" || input.subList(1, input.size).any { it.toIntOrNull() == null }) {
-            kill(activePlayer, 0, String.format("$%d Expected input was 'PLACE <tileId> <tileRotation>", activePlayer.index))
+        if (input.size < 3 || input[0] != "PLACE" || input.subList(1, 3).any { it.toIntOrNull() == null }) {
+            kill(activePlayer, 0, String.format("$%d Expected input was 'PLACE <tileId> <tileRotation> <optional message>", activePlayer.index))
             return
         }
-        val tilePick = Move(input[1].toInt(), input[2].toInt())
 
         // validate input values (check whether card is in player's hand)
+        val tile = tiles[input[1].toInt()]
+        val tilePick = Move(input[1].toInt(), input[2].toInt(), tile.rotated(input[2].toInt()).connections)
         if (activePlayer.hand.none { it.id == tilePick.tileId } || tilePick.rotation < 0 || tilePick.rotation > 3) {
             kill(activePlayer, 0, String.format("$%d Invalid input - either tileId or rotation was invalid", activePlayer.index))
             return
@@ -31,6 +32,10 @@ fun Referee.movingTurns(playerId: Int) {
 
         // place tile based on player pick
         placeTile(tilePick, activePlayer.position)
+        if (input.size > 3) {
+            speak(activePlayer, input.subList(3, input.size).joinToString(" "))
+        }
+
         board[activePlayer.position.col][activePlayer.position.row] = Piece(tiles[tilePick.tileId].rotated(tilePick.rotation))
 
         // do moves

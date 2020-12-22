@@ -1,21 +1,19 @@
 package com.codingame.game.turn
 
-import com.codingame.game.Player
-import com.codingame.game.Referee
-import com.codingame.game.connections
-import com.codingame.game.id
+import com.codingame.game.*
 import com.codingame.gameengine.core.GameManager
 import com.codingame.gameengine.core.MultiplayerGameManager
 
 /**
  * These are inputs send to [Player]'s input stream:
  *
- * 1. <opponents> lines containing
- *      1. <tileId> - last tile ID played by opponent
- *      2. <tileRotation> - last tile ROTATION played by opponent
- *      3. <col> - column on which opponent is located
- *      4. <row> - row on which opponent is located
+ * 1. <playerCount> lines containing
+ *      1. <tileId> - last tile ID played by player
+ *      2. <tileConnections> - last tile connections after rotation played by player
+ *      3. <col> - column on which player is located
+ *      4. <row> - row on which player is located
  *      5. <index> - position index (0,1 top; 2,3 right...)
+ *      6. <startingBoardIndex> - starting position - board index (0..11 top, 12..23 right...)
  * 2. <cardCount> - count of cards on my hand
  * 3. <cardCount> lines of
  *      1. <tileId> - identifier of tile
@@ -24,9 +22,14 @@ import com.codingame.gameengine.core.MultiplayerGameManager
 fun Referee.sendInputsToPlayer(player: Player) {
 
     // last opponent moves
-    for (i in 1 until gameManager.players.size) {
+    for (i in 0 until gameManager.players.size) {
         val opponent = gameManager.getPlayer((player.index + i) % gameManager.players.size)
-        player.sendInputLine("${opponent.lastMove.tileId} ${opponent.lastMove.rotation} ${opponent.position.col} ${opponent.position.row} ${opponent.position.index}")
+        player.sendInputLine("${opponent.lastMove.tileId} " +
+                "${opponent.lastMove.tileConnections.joinToString(" ")} " +
+                "${opponent.position.col} " +
+                "${opponent.position.row} " +
+                "${opponent.position.index} " +
+                "${opponent.startingPositionBoardIndex}")
     }
 
     // my card count
@@ -81,6 +84,7 @@ fun Referee.kill(
     deck.addAll(player.hand)
     player.hand.clear()
     deck.shuffle()
+    hidePlayer(player)
 
     // deal cards - first player who were unable to pick receives first card
     var activeIndex = (player.index + 1) % gameManager.players.size

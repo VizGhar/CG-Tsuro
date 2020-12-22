@@ -22,7 +22,7 @@ class Referee : AbstractReferee() {
     override fun init() {
         gameManager.maxTurns = 35 + gameManager.playerCount
         gameManager.firstTurnMaxTime = 1000
-        gameManager.turnMaxTime = 50
+        gameManager.turnMaxTime = 100
         gameManager.frameDuration = 600
 
         // offer tiles

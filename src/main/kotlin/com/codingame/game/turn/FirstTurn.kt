@@ -7,15 +7,9 @@ import com.codingame.gameengine.core.AbstractPlayer
 /**
  * Validate first turn of each player.
  *
- * If invalid - deactivate player and set his score to -1
+ * If invalid - deactivate player and set his score to 0
  * If valid - store position to [Player.position] and call
  *
- * These are inputs send to [Player]'s input stream:
- * 1. <opponents> - opponent count
- * 2. <opponents> lines containing
- *      1. <col> - column on which opponent is located
- *      2. <row> - row on which opponent is located
- *      3. <index> - position index (0,1 top; 2,3 right...)
  */
 fun Referee.doFirstTurn(playerId: Int) {
 
@@ -24,7 +18,7 @@ fun Referee.doFirstTurn(playerId: Int) {
         gameManager.getPlayer((playerId + it) % gameManager.players.size)
     }
 
-    player.sendInputLine("${gameManager.playerCount - 1}")
+    player.sendInputLine("${gameManager.playerCount}")
 
     sendInputsToPlayer(player)
 
@@ -32,56 +26,33 @@ fun Referee.doFirstTurn(playerId: Int) {
         player.execute()
 
         val input = player.outputs[0].split(" ")
-        if (input.size != 4 || input[0] != "START" || input.subList(1, input.size).any { it.toIntOrNull() == null }) {
-            kill(player, 0, String.format("$%d Expected input was 'START <column> <row> <index>", player.index))
+
+        // valid items - count & format
+        if (input.size < 2 || input[0] != "START" || input[1].toIntOrNull() == null) {
+            kill(player, 0, String.format("$%d Expected input was 'START <boardIndex> <optional message>'", player.index))
             return
         }
 
-        val pickedPosition = BoardPosition(input[1].toInt(), input[2].toInt(), input[3].toInt())
-
-        val valid = when {
-            pickedPosition.row < 0 -> false
-            pickedPosition.row > 5 -> false
-            pickedPosition.col < 0 -> false
-            pickedPosition.col > 5 -> false
-            pickedPosition.row == 0 -> {
-                when {
-                    pickedPosition.col == 0 && pickedPosition.index !in listOf(0, 1, 6, 7) -> false
-                    pickedPosition.col == 5 && pickedPosition.index !in listOf(0, 1, 2, 3) -> false
-                    pickedPosition.col in 1..4 && pickedPosition.index !in listOf(0, 1) -> false
-                    else -> true
-                }
-            }
-            pickedPosition.row == 5 -> {
-                when {
-                    pickedPosition.col == 0 && pickedPosition.index !in listOf(4, 5, 6, 7) -> false
-                    pickedPosition.col == 5 && pickedPosition.index !in listOf(2, 3, 4, 5) -> false
-                    pickedPosition.col in 1..4 && pickedPosition.index !in listOf(4, 5) -> false
-                    else -> true
-                }
-            }
-            pickedPosition.col == 0 -> {
-                when {
-                    pickedPosition.index !in listOf(6, 7) -> false
-                    else -> true
-                }
-            }
-            pickedPosition.col == 5 -> {
-                when {
-                    pickedPosition.index !in listOf(2, 3) -> false
-                    else -> true
-                }
-            }
-            else -> false
+        // valid items - value
+        val boardPosition = input[1].toInt()
+        if (boardPosition < 0 || boardPosition > 47) {
+            kill(player, 0, String.format("$%d Starting position boardIndex should be picked from interval 0-47", player.index))
+            return
         }
 
-        when {
-            valid && pickedPosition !in opponents.map { it.position } -> {
-                player.position = pickedPosition
-                placePlayer(player, pickedPosition)
-            }
-            valid -> kill(player, 0, String.format("$%d Invalid starting position - same as opponent", player.index))
-            else -> kill(player, 0, String.format("$%d Invalid starting position", player.index))
+        // valid items - respect to game
+        val pickedPosition = getBoardPosition(input[1].toInt())
+        if (boardPosition in opponents.map { it.startingPositionBoardIndex }) {
+            kill(player, 0, String.format("$%d Invalid starting position - same as opponent", player.index))
+            return
+        }
+
+        // place player on board
+        player.position = pickedPosition
+        player.startingPositionBoardIndex = boardPosition
+        placePlayer(player, pickedPosition)
+        if (input.size > 2) {
+            speak(player, input.subList(2, input.size).joinToString(" "))
         }
     }  catch (e: AbstractPlayer.TimeoutException) {
         kill(player, 0, String.format("$%d timeout!", player.index))

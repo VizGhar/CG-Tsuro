@@ -20,6 +20,10 @@ fun Referee.placePlayer(player: Player, position: BoardPosition) {
     player.token?.setX(x, Curve.EASE_IN_AND_OUT)?.setY(y, Curve.EASE_IN_AND_OUT)
 }
 
+fun Referee.hidePlayer(player: Player) {
+    player.token?.setAlpha(0.0, Curve.EASE_OUT)
+}
+
 fun Referee.placeTile(move: Move, position: BoardPosition) {
 
     tileSprites[position.col][position.row]?.let { tile ->
@@ -125,5 +129,20 @@ fun Referee.hud() {
                 .setFillColor(0xffffff)
                 .setAnchor(0.5)
 
+        player.message = graphicEntityModule.createText()
+                .setX(x)
+                .setY(y + frameSize / 2 + 2 * fontSize)
+                .setZIndex(20)
+                .setFontSize(fontSize - 4)
+                .setFillColor(0xffffff)
+                .setAnchor(0.5)
+
+    }
+}
+
+fun Referee.speak(player: Player, message: String) {
+    player.message?.let {
+        it.setText(message)
+        graphicEntityModule.commitEntityState(0.0, it)
     }
 }

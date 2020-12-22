@@ -7,6 +7,7 @@ object TsuroMain {
         gameRunner.addAgent(Agent1::class.java)
         gameRunner.addAgent(Agent1::class.java)
         gameRunner.addAgent(Agent1::class.java)
+        gameRunner.addAgent(Agent1::class.java)
         gameRunner.start()
     }
 }

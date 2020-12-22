@@ -22,11 +22,9 @@
         on the board with different paths drawn on them. After the move, players are following the new paths created.
         Tiles are stored in tile deck, that consists of <const>35</const> tiles.<br><br>
         <strong>Tiles</strong><br>
-        Player is placing tiles with 4 sets of paths. Path has 2 ends indexed as following:
-        <br>
-        <p style="text-align:center;">
+        Player is placing tiles with 4 sets of paths. Path has 2 destinations indexed as following:
+        <br><br>
         <img src="https://raw.githubusercontent.com/VizGhar/CG-Tsuro/master/src/main/resources/view/assets/indexes.png" width="200" height="200"/>
-        </p>
         <br>
         So here you can see tile with some ID and indexes as follows -
         <const>0</const> <const>4</const>
@@ -35,11 +33,13 @@
         <const>6</const> <const>7</const>
         <br><br>
         <strong>First turn</strong><br>
+        Each player receives 3 tiles. Players can't see each others tiles.<br>
         The active player places his or her marker on one of the start marks on the outside edge of the game board.
-        Each tile has 2 path ends on each side, so there are 2 x 6 x 4 = 48 possible starting position. Starting
-        position should be selected by calling <const>START</const> <var>column</var> <var>row</var> <var>index</var>
+        Each tile has 2 path ends on each side, so there are 2 x 6 (tiles per side) x 4 (sides) = 48 possible starting
+        positions. The starting positions are indexed starting from 0 in top left corner and incrementing clockwise
+        (same as tile indexing). Starting position should be picked by calling:
+        <const>START</const> <var>boardIndex</var> <var>optionalMessage</var>
         <br><br>
-
         <strong>Game turn</strong><br>
         Game turn consists of 3 phases:<br>
         <ol>
@@ -54,6 +54,7 @@
         The tile can be placed only at the end of player's current path. The tiles has id assigned and can be rotated
         clockwise <const>0</const>, <const>1</const>, <const>2</const> or <const>3</const> times and placed on the
         board. You can place the tile by calling <const>PLACE</const> <var>tileId</var> <var>tileRotation</var>
+        <var>optionalMessage</var>
         <br>
         <br>
         <strong>Move the markers</strong>
@@ -61,13 +62,22 @@
         The active player moves his marker to the open end of the path.<br>
         All other players next to the new tile are moved to the ends of their new paths.<br>
         Any player that leaves the board will be eliminated.
-        If more then one player is eliminated during resolution phase, active player is scored worse then inactive ones.
         <br>
         <br>
         <strong>Drawing tiles</strong>
         <br>
         Tiles are drawn from the shuffled deck. Current player can have at most <const>3</const> tiles in his hands.
         If there are no tiles in deck remaining, player can have less then 3 tiles in his hand. This move is automated.
+        <br><br>
+        <strong>Scoring</strong>
+        <br>
+        Player will be scored either if the game is over or he/she gets eliminated. Score is equal to game turn
+        with these adjustments:<br>
+        <ol>
+          <li>Player that survives the game will be scored one more point (winner)</li>
+          <li>If player dies in his own turn he loses one point (suicide). So the player can't force draw by killing both
+          himself and his opponent</li>
+        </ol>
       </div>
     </div>
   </div>
@@ -78,7 +88,9 @@
       <span>Expert Rules</span>
     </h1>
     <div class="statement-expert-rules-content">
-      You can find the sourcecode of the game on <a href="https://github.com/VizGhar/CG-Tsuro">https://github.com/VizGhar/CG-Tsuro</a>
+      You can find the sourcecode of the game on <a href="https://github.com/VizGhar/CG-Tsuro">https://github.com/VizGhar/CG-Tsuro</a><br>
+      Tiles have static id's and paths based on following tileset:<br><br>
+      <img src="https://raw.githubusercontent.com/VizGhar/CG-Tsuro/master/src/main/resources/view/assets/tileset.png" width="200"/>
     </div>
   </div>
   <!-- PROTOCOL -->
@@ -91,26 +103,26 @@
     <div class="blk">
       <div class="title">Input - Init</div>
       <div class="text">
-        <p><span class="statement-lineno">Line 1: </span><var>opponents</var> - count of opponents</p>
+        <p><span class="statement-lineno">Line 1: </span><var>playerCount</var> - count of players</p>
       </div>
     </div>
 
     <div class="blk">
       <div class="title">Input - Game Loop</div>
       <div class="text">
-        <p><span class="statement-lineno"><var>opponents</var> lines: </span>
+        <p><span class="statement-lineno"><var>playerCount</var> lines: </span>
         <ul>
-          <li><var>tileId</var> - id of last tile opponent played</li>
-          <li><var>tileRotation</var> - orientation of last tile opponent played</li>
-          <li><var>col</var> - current opponent position - column</li>
-          <li><var>row</var> - current opponent position - row</li>
-          <li><var>index</var> - current opponent position - index</li>
+          <li><var>tileId</var> - id of last tile player played</li>
+          <li>4 pairs of path destinations (<var>ps</var>:<var>pe</var>) - lastly played by player</li>
+          <li><var>col</var> - current player position - column</li>
+          <li><var>row</var> - current player position - row</li>
+          <li><var>index</var> - current player position - index</li>
         </ul>
-        <p><span class="statement-lineno"><var>tileCount</var> - tiles on hand</span>
+        <p><span class="statement-lineno"><var>tileCount</var> - tiles on your hand</span>
         <p><span class="statement-lineno"><var>tileCount</var> lines: </span>
         <ul>
           <li><var>tileId</var></li>
-          <li>four pairs of <var>ps</var> - index where path starts<br><var>pe</var> - index where path ends</li>
+          <li>4 pairs of path destinations <var>ps</var> - index where path starts<br><var>pe</var> - index where path ends</li>
         </ul>
         </p>
       </div>
@@ -119,8 +131,8 @@
     <div class="blk">
       <div class="title">Output - Game Loop</div>
       <div class="text">
-        <span class="statement-lineno">First turn</span> <const>START</const> <var>column</var> <var>row</var> <var>positionIndex</var>
-        <span class="statement-lineno">Other turns</span> <const>PLACE</const> <var>tileId</var> <var>tileRotation</var>
+        <span class="statement-lineno">First turn</span> <const>START</const> <var>boardIndex</var> <var>optionalMessage</var>
+        <span class="statement-lineno">Other turns</span> <const>PLACE</const> <var>tileId</var> <var>tileRotation</var> <var>optionalMessage</var>
         <br>
       </div>
     </div>
@@ -131,7 +143,7 @@
       <div class="text">Allotted response time to output is
         <ul>
           <li>≤ <const>1</const> second in first move</li>
-          <li>≤ <const>50</const> ms in other moves</li>
+          <li>≤ <const>100</const> ms in other moves</li>
         </ul>
       </div>
     </div>
