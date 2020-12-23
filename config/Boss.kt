@@ -1,5 +1,9 @@
 import java.util.*
 
+import kotlin.random.*
+
+val random = Random(1)
+
 typealias Tile = Pair<Int, IntArray>
 
 data class Player(
@@ -134,5 +138,5 @@ fun newPosition() : Position? {
 fun doFirstMove(players: List<Player>) {
     val positions = (0..47).toMutableList()
     positions.removeAll { it in players.map { it.startIndex } }
-    println("START ${positions.random()}")
+    println("START ${positions.random(random)}")
 }

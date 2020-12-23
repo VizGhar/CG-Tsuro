@@ -85,7 +85,7 @@ fun Referee.kill(
     player.deactivate(message)
     deck.addAll(player.hand)
     player.hand.clear()
-    deck.shuffle()
+    deck.shuffle(random)
     hidePlayer(player)
 
     // deal cards - first player who were unable to pick receives first card

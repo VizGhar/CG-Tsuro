@@ -49,8 +49,10 @@ fun Referee.movePlayers(moves: Map<Int, List<MoveMetaData>>) {
 }
 
 fun Referee.hidePlayer(player: Player) {
-    player.token?.setAlpha(0.0, Curve.EASE_OUT)
-    graphicEntityModule.commitEntityState(1.0, player.token)
+    player.token?.let {
+        it.setAlpha(0.0, Curve.EASE_OUT)
+        graphicEntityModule.commitEntityState(1.0, it)
+    }
     for (i in 0 until player.handSprites.size) {
         player.handSprites[i] = null
     }

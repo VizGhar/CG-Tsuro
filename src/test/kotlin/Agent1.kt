@@ -1,6 +1,8 @@
 import java.util.*
+import kotlin.random.*
 
 typealias Tile = Pair<Int, IntArray>
+val random = Random(1)
 
 object Agent1 {
 
@@ -138,6 +140,6 @@ object Agent1 {
     fun doFirstMove(players: List<Player>) {
         val positions = (0..47).toMutableList()
         positions.removeAll { it in players.map { it.startIndex } }
-        println("START ${positions.random()}")
+        println("START ${positions.random(random)}")
     }
 }
