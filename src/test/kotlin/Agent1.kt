@@ -46,7 +46,7 @@ object Agent1 {
             System.err.println(players[0])
 
             for(player in players) {
-                if (player.col >= 0 && player.row >= 0 && player.col < 6 && player.row < 6) {
+                if (player.col >= 0 && player.row >= 0 && player.col < 6 && player.row < 6 && player.lastPlayedTile != -1) {
                     board[player.col][player.row] = player.lastPlayedTile to player.lastPlayerTileConnections
                 }
             }
@@ -111,6 +111,7 @@ object Agent1 {
         var actualIndex = myPositionIndex
         while (actCol >= 0 && actRow >= 0 && actCol < 6 && actRow < 6 && board[actCol][actRow] != null) {
             val actualPiece = board[actCol][actRow]
+            System.err.println("$actualPiece - $actualIndex")
             val target = actualPiece!!.connections.toList()
                     .chunked(2)
                     .first { it.contains(actualIndex) }

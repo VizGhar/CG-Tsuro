@@ -43,7 +43,7 @@ fun main(args : Array<String>?) {
         System.err.println(players[0])
 
         for(player in players) {
-            if (player.col >= 0 && player.row >= 0 && player.col < 6 && player.row < 6) {
+            if (player.col >= 0 && player.row >= 0 && player.col < 6 && player.row < 6 && player.lastPlayedTile != -1) {
                 board[player.col][player.row] = player.lastPlayedTile to player.lastPlayerTileConnections
             }
         }
