@@ -57,7 +57,9 @@ private var tsuroIndex = -1
 fun Referee.drawFromDeck(player: Player) {
     if (player.isActive) {
         if (deck.isNotEmpty()) {
-            player.hand.add(deck.removeFirst())
+            val tile = deck.removeFirst()
+            player.hand.add(tile)
+            dealTile(player, tile)
             if (tsuroIndex != -1) {
                 System.err.println("Moving Tsuro Tile to next player (or discarding)")
                 val nextActivePlayer = gameManager.nextActivePlayer(player)

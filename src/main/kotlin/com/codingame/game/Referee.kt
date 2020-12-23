@@ -1,5 +1,6 @@
 package com.codingame.game
 
+import com.codingame.game.turn.drawFromDeck
 import com.codingame.game.turn.movingTurns
 import com.codingame.gameengine.core.AbstractReferee
 import com.codingame.gameengine.core.MultiplayerGameManager
@@ -23,12 +24,12 @@ class Referee : AbstractReferee() {
         gameManager.maxTurns = 35 + gameManager.playerCount
         gameManager.firstTurnMaxTime = 1000
         gameManager.turnMaxTime = 100
-        gameManager.frameDuration = 600
+        gameManager.frameDuration = 500
 
         // offer tiles
         for (player in gameManager.players) {
             for (i in 0 until 3) {
-                player.hand.add(deck.removeFirst())
+                drawFromDeck(player)
             }
         }
 
@@ -46,6 +47,7 @@ class Referee : AbstractReferee() {
         if (turn <= gameManager.playerCount) {
             doFirstTurn(activePlayerId)
         } else {
+            gameManager.frameDuration = 1250
             movingTurns(activePlayerId)
         }
 

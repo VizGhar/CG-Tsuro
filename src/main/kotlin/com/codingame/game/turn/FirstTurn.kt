@@ -50,7 +50,7 @@ fun Referee.doFirstTurn(playerId: Int) {
         // place player on board
         player.position = pickedPosition
         player.startingPositionBoardIndex = boardPosition
-        placePlayer(player, pickedPosition)
+        placePlayer(player, pickedPosition, true)
         if (input.size > 2) {
             speak(player, input.subList(2, input.size).joinToString(" "))
         }

@@ -31,7 +31,7 @@ fun Referee.movingTurns(playerId: Int) {
         }
 
         // place tile based on player pick
-        placeTile(tilePick, activePlayer.position)
+        placeTile(activePlayer, tilePick)
         if (input.size > 3) {
             speak(activePlayer, input.subList(3, input.size).joinToString(" "))
         }
@@ -64,7 +64,7 @@ fun Referee.movingTurns(playerId: Int) {
                     }
 
                     player.position = BoardPosition(actCol, actRow, actualIndex)
-                    placePlayer(player, player.position)
+                    placePlayer(player, player.position, false)
 
                     if (actCol < 0 || actRow < 0 || actCol > 5 || actRow > 5) {
                         // active player commits suicide -> score penalization
@@ -77,6 +77,8 @@ fun Referee.movingTurns(playerId: Int) {
             // draw from deck if player is still active
             activePlayer.lastMove = tilePick
             activePlayer.hand.removeIf { it.id == tilePick.tileId }
+            val i = activePlayer.handSprites.indexOfFirst { it?.first == tilePick.tileId }
+            if (i != -1) activePlayer.handSprites[i] = null
             drawFromDeck(activePlayer)
         }
     } catch (e: AbstractPlayer.TimeoutException) {

@@ -1,12 +1,11 @@
 package com.codingame.game
 
 import com.codingame.gameengine.module.entities.Curve
-import com.codingame.gameengine.module.entities.Sprite
 
 private const val boardSize = tileSize * 6
 private const val tokenSize = tileSize / 6
 
-fun Referee.placePlayer(player: Player, position: BoardPosition) {
+fun Referee.placePlayer(player: Player, position: BoardPosition, immidiate: Boolean) {
     val relativePos = indexToRelativePosition(position.index)
     val x = (1920 - boardSize) / 2 + position.col * tileSize + relativePos.x
     val y = (1080 - boardSize) / 2 + position.row * tileSize + relativePos.y
@@ -17,27 +16,75 @@ fun Referee.placePlayer(player: Player, position: BoardPosition) {
             .setLineWidth(0.0)
             .setRadius(tokenSize)
 
-    player.token?.setX(x, Curve.EASE_IN_AND_OUT)?.setY(y, Curve.EASE_IN_AND_OUT)
+    if (!immidiate) {
+        graphicEntityModule.commitEntityState(0.5, player.token)
+    }
+
+    player.token?.setX(x)?.setY(y)
+    graphicEntityModule.commitEntityState(if(immidiate) 0.0 else 1.0, player.token)
 }
 
 fun Referee.hidePlayer(player: Player) {
     player.token?.setAlpha(0.0, Curve.EASE_OUT)
-}
-
-fun Referee.placeTile(move: Move, position: BoardPosition) {
-
-    tileSprites[position.col][position.row]?.let { tile ->
-        tile.setImage("tile${move.tileId.toString().padStart(2, '0')}.png")
-                .setRotation(Math.PI / 2 * move.rotation,Curve.EASE_OUT)
-        graphicEntityModule.commitEntityState(0.01, tile)
-
-        tile.setAlpha(1.0, Curve.EASE_OUT)
-
-        graphicEntityModule.commitEntityState(0.5, tile)
+    graphicEntityModule.commitEntityState(1.0, player.token)
+    for (i in 0 until player.handSprites.size) {
+        player.handSprites[i] = null
     }
 }
 
-private var tileSprites: Array<Array<Sprite?>> = Array(6) { Array(6) { null } }
+fun Referee.dealTile(player: Player, tile: Tile) {
+    val horizontalSpace = (1920 - boardSize) / 2
+    val verticalSpace = 1080 / ((gameManager.playerCount + 1) / 2)
+
+    val horizontalCenterLeft = horizontalSpace / 2
+    val horizontalCenterRight = boardSize + horizontalSpace + horizontalSpace / 2
+
+    val fontSize = if (gameManager.playerCount < 5) 40 else 30
+    val cardSize = if (gameManager.playerCount < 5) 120 else 80
+
+    val row = player.index / 2
+    val verticalCenter = (row * verticalSpace + (row + 1) * verticalSpace) / 2
+    val x = (if (player.index % 2 == 0) horizontalCenterLeft - cardSize else horizontalCenterRight + cardSize)
+    val y = verticalCenter - fontSize
+
+    val m = if (player.index % 2 == 0) 1 else -1
+    val index = player.handSprites.indexOfFirst { it == null }
+    val pos = when(index) {
+        -1 -> return
+        0 -> x + (2 * cardSize * m) to y - cardSize
+        1 -> x + (2 * cardSize * m) to y + 5
+        2 -> x + (2 * cardSize * m) to y + cardSize + 10
+        else -> throw IllegalStateException()
+    }
+    val sprite = graphicEntityModule
+            .createSprite()
+            .setAnchorX(0.5)
+            .setAnchorY(0.5)
+            .setZIndex(-10)
+            .setBaseWidth(cardSize)
+            .setBaseHeight(cardSize)
+            .setX(pos.x)
+            .setY(pos.y)
+            .setImage("tile${tile.id.toString().padStart(2, '0')}.png")
+    player.handSprites[index] = tile.id to sprite
+
+    graphicEntityModule.commitEntityState(0.5, sprite)
+}
+
+fun Referee.placeTile(player: Player, move: Move) {
+    player.handSprites.firstOrNull { it?.first == move.tileId }?.let { sprite ->
+        val x = (1920 - boardSize) / 2 + player.position.col * tileSize + tileSize / 2
+        val y = (1080 - boardSize) / 2 + player.position.row * tileSize + tileSize / 2
+
+        sprite.second.setRotation(Math.PI / 2 * move.rotation)
+                .setX(x)
+                .setY(y)
+                .setBaseWidth(150)
+                .setBaseHeight(150)
+
+        graphicEntityModule.commitEntityState(0.5, sprite.second)
+    }
+}
 
 fun Referee.boardFrame() {
     graphicEntityModule.createSprite()
@@ -55,25 +102,6 @@ fun Referee.boardFrame() {
             .setLineWidth(10.0)
             .setLineColor(0xFFFFFF)
             .setFillColor(0x000000)
-
-    for (row in 0 until 6){
-        for(col in 0 until 6) {
-
-            val x = (1920 - boardSize) / 2 + col * tileSize + tileSize / 2
-            val y = (1080 - boardSize) / 2 + row * tileSize + tileSize / 2
-
-            val sprite = graphicEntityModule
-                    .createSprite()
-                    .setAnchorX(0.5)
-                    .setAnchorY(0.5)
-                    .setZIndex(-10)
-                    .setAlpha(0.0)
-                    .setX(x)
-                    .setY(y)
-
-            tileSprites[col][row] = sprite
-        }
-    }
 }
 
 fun Referee.hud() {
@@ -87,12 +115,17 @@ fun Referee.hud() {
     val whiteRectangleSize = frameSize - 20
     val avatarSize = whiteRectangleSize - 8
     val fontSize = if (gameManager.playerCount < 5) 40 else 30
+    val cardSize = if (gameManager.playerCount < 5) 120 else 80
 
     for (player in gameManager.players) {
-        val x = if (player.index % 2 == 0) horizontalCenterLeft else horizontalCenterRight  // odd players on left
         val row = player.index / 2
         val verticalCenter = (row * verticalSpace + (row + 1) * verticalSpace) / 2
-        val y = verticalCenter - fontSize  // first and second player on top
+        val x = (if (player.index % 2 == 0) horizontalCenterLeft - cardSize else horizontalCenterRight + cardSize)
+        val y = verticalCenter - fontSize
+
+        player.hand.forEach { tile ->
+            dealTile(player, tile)
+        }
 
         graphicEntityModule
                 .createRectangle()

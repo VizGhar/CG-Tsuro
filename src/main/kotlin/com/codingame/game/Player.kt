@@ -2,6 +2,7 @@ package com.codingame.game
 
 import com.codingame.gameengine.core.AbstractMultiplayerPlayer
 import com.codingame.gameengine.module.entities.Circle
+import com.codingame.gameengine.module.entities.Sprite
 import com.codingame.gameengine.module.entities.Text
 
 data class Move(val tileId: Int, val rotation: Int, val tileConnections: IntArray)
@@ -81,6 +82,7 @@ class Player : AbstractMultiplayerPlayer() {
     var startingPositionBoardIndex = -1
     var token: Circle? = null
     var message: Text? = null
+    val handSprites: Array<Pair<Int, Sprite>?> = Array(3) { null }
 
     override fun getExpectedOutputLines() = 1
 
