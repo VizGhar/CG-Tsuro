@@ -33,6 +33,35 @@ fun indexToRelativePosition(index: Int) =
             else -> throw IllegalStateException()
         }
 
+fun indexDistance(from: Int, to: Int): Double =
+        when {
+            // by 1 even
+            from % 2 == 0 && to == from + 1 -> 50.0
+            to % 2 == 0 && from == to + 1 -> 50.0
+
+            // by 1 odd
+            from % 2 == 1 && (from + 1) % 8 == to -> 70.7
+            to % 2 == 1 && (to + 1) % 8 == from -> 70.7
+
+            // by 2
+            (from + 2) % 8 == to -> 111.8
+            (to + 2) % 8 == from -> 111.8
+
+            // by 3 even
+            from % 2 == 0 && (from + 3) % 8 == to -> 141.4
+            to % 2 == 0 && (to + 3) % 8 == from -> 141.4
+
+            // by 3 odd
+            from % 2 == 1 && (from + 3) % 8 == to -> 150.0
+            to % 2 == 1 && (to + 3) % 8 == from -> 150.0
+
+            // by 4
+            (from + 4) % 8 == to -> 158.1
+            (to + 4) % 8 == from -> 158.1
+
+            else -> throw IllegalStateException("from = $from ; to = $to")
+        }
+
 val tiles : List<Tile> = listOf(
         0 to intArrayOf(0, 1, 2, 3, 4, 5, 6, 7),
         1 to intArrayOf(0, 7, 1, 6, 2, 3, 4, 5),

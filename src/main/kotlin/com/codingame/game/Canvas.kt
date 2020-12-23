@@ -24,6 +24,30 @@ fun Referee.placePlayer(player: Player, position: BoardPosition, immidiate: Bool
     graphicEntityModule.commitEntityState(if(immidiate) 0.0 else 1.0, player.token)
 }
 
+data class MoveMetaData(val col: Int, val row: Int, val index: Int, val distance: Double)
+
+fun Referee.movePlayers(moves: Map<Int, List<MoveMetaData>>) {
+    // skip putting tile time
+    val skipDistance = 500.0 / gameManager.frameDuration
+    var travelledDistance = skipDistance
+    moves.forEach { playerId, moves ->
+        val player = gameManager.getPlayer(playerId)
+        val token = player.token?: throw IllegalStateException()
+
+        graphicEntityModule.commitEntityState(travelledDistance, token)
+
+        moves.forEach { move ->
+            val relativePos = indexToRelativePosition(move.index)
+            val x = (1920 - boardSize) / 2 + move.col * tileSize + relativePos.x
+            val y = (1080 - boardSize) / 2 + move.row * tileSize + relativePos.y
+
+            token.setX(x).setY(y)
+            travelledDistance += 2.0 * move.distance / gameManager.frameDuration
+            graphicEntityModule.commitEntityState(minOf(travelledDistance, 1.0), token)
+        }
+    }
+}
+
 fun Referee.hidePlayer(player: Player) {
     player.token?.setAlpha(0.0, Curve.EASE_OUT)
     graphicEntityModule.commitEntityState(1.0, player.token)
@@ -71,10 +95,10 @@ fun Referee.dealTile(player: Player, tile: Tile) {
     graphicEntityModule.commitEntityState(0.5, sprite)
 }
 
-fun Referee.placeTile(player: Player, move: Move) {
+fun Referee.placeTile(player: Player, move: Move, col: Int, row: Int) {
     player.handSprites.firstOrNull { it?.first == move.tileId }?.let { sprite ->
-        val x = (1920 - boardSize) / 2 + player.position.col * tileSize + tileSize / 2
-        val y = (1080 - boardSize) / 2 + player.position.row * tileSize + tileSize / 2
+        val x = (1920 - boardSize) / 2 + col * tileSize + tileSize / 2
+        val y = (1080 - boardSize) / 2 + row * tileSize + tileSize / 2
 
         sprite.second.setRotation(Math.PI / 2 * move.rotation)
                 .setX(x)
@@ -82,7 +106,7 @@ fun Referee.placeTile(player: Player, move: Move) {
                 .setBaseWidth(150)
                 .setBaseHeight(150)
 
-        graphicEntityModule.commitEntityState(0.5, sprite.second)
+        graphicEntityModule.commitEntityState(500.0 / gameManager.frameDuration, sprite.second)
     }
 }
 
