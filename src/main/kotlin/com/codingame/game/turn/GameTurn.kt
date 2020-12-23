@@ -75,6 +75,11 @@ fun Referee.movingTurns(playerId: Int) {
         placeTile(activePlayer, tilePick, placingCol, placingRow)
         movePlayers(moves)
 
+        activePlayer.lastMove = tilePick
+        activePlayer.hand.removeIf { it.id == tilePick.tileId }
+        val i = activePlayer.handSprites.indexOfFirst { it?.first == tilePick.tileId }
+        if (i != -1) activePlayer.handSprites[i] = null
+
         for (player in gameManager.activePlayers) {
             if (player.position.col < 0 || player.position.row < 0 || player.position.col > 5 || player.position.row > 5) {
                 // active player commits suicide -> score penalization
@@ -84,11 +89,6 @@ fun Referee.movingTurns(playerId: Int) {
         }
 
         if (activePlayer.isActive) {
-            // draw from deck if player is still active
-            activePlayer.lastMove = tilePick
-            activePlayer.hand.removeIf { it.id == tilePick.tileId }
-            val i = activePlayer.handSprites.indexOfFirst { it?.first == tilePick.tileId }
-            if (i != -1) activePlayer.handSprites[i] = null
             drawFromDeck(activePlayer)
         }
     } catch (e: AbstractPlayer.TimeoutException) {

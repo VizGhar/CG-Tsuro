@@ -5,4 +5,4 @@ loop playerCount read lastPlayedTileId:int ps1:int pe1:int ps2:int pe2:int ps3:i
 read tileCount:int
 loop tileCount read tileId:int ps1:int pe1:int ps2:int pe2:int ps3:int pe3:int ps4:int pe4:int
 
-write (START <column> <row> <index>) or (PLACE <tile> <rotation>)
+write (START <boardIndex> <optionalMessage>) or (PLACE <tile> <rotation> <optionalMessage>)

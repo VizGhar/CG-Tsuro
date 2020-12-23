@@ -54,6 +54,7 @@ fun Referee.hidePlayer(player: Player) {
         graphicEntityModule.commitEntityState(1.0, it)
     }
     for (i in 0 until player.handSprites.size) {
+        player.handSprites[i]?.second?.isVisible = false
         player.handSprites[i] = null
     }
 }
